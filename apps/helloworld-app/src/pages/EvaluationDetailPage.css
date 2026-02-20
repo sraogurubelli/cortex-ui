@@ -1,0 +1,160 @@
+.evaluation-detail-page {
+  width: 100%;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.evaluation-detail-loading,
+.evaluation-detail-error {
+  padding: 2rem;
+  text-align: center;
+}
+
+.evaluation-detail-error {
+  color: #ef4444;
+}
+
+.evaluation-detail-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.evaluation-detail-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.evaluation-detail-header .description {
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.header-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-badge.status-completed {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.status-running {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.status-failed {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.evaluation-detail-scores {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.evaluation-detail-scores h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.scores-summary {
+  margin-bottom: 1.5rem;
+}
+
+.scores-detailed {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.score-item {
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.score-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.score-name {
+  font-weight: 500;
+  color: #374151;
+}
+
+.score-comment {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.evaluation-detail-info {
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.evaluation-detail-info h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.info-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem 1.5rem;
+}
+
+.info-list dt {
+  font-weight: 500;
+  color: #374151;
+}
+
+.info-list dd {
+  color: #6b7280;
+  text-transform: capitalize;
+}

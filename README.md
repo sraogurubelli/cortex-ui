@@ -58,12 +58,42 @@ pnpm build:design-system
 ### Development
 
 ```bash
-# Start dev servers for all packages
+# Start dev servers for all packages and apps
 pnpm dev
 
 # Start specific package
 cd packages/core && pnpm dev
+
+# Start showcase app
+cd apps/showcase && pnpm dev
+
+# Start Hello World app
+cd apps/helloworld-app && pnpm dev
 ```
+
+## Apps
+
+### Showcase App
+
+The `apps/showcase` directory contains a comprehensive showcase application demonstrating all UI components from `@cortex/core`. It includes:
+
+- **Chat Components** - Complete chat UI with panels, inputs, and message bubbles
+- **Agent Components** - Agent cards and avatars for displaying AI agents
+- **Evaluation Components** - Badges and displays for evaluation scores and metrics
+- **Multi-page Navigation** - Browse different component categories with interactive examples
+
+See [apps/showcase/README.md](./apps/showcase/README.md) for details.
+
+### Hello World App
+
+The `apps/helloworld-app` directory contains a complete sample application with a **Monitoring across the entire AI lifecycle** landing page (Continuous Evals and three phases: Pre-production, Runtime inference, Always-on production evals), similar to ai-evaluation-ui:
+
+- **Lifecycle landing page** - Central "Continuous Evals" diagram and phase cards
+- **Feature-based architecture** - Agents, evaluations, conversations
+- **TanStack Query & React Router** - Data fetching and navigation
+- **Cortex UI & Harness UI** - Full app using design system and core components
+
+See [apps/helloworld-app/README.md](./apps/helloworld-app/README.md) for details.
 
 ## Contributing
 

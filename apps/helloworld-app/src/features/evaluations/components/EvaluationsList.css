@@ -1,0 +1,16 @@
+.evaluations-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.evaluations-list-loading,
+.evaluations-list-error,
+.evaluations-list-empty {
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.evaluations-list-error {
+  color: #ef4444;
+}
