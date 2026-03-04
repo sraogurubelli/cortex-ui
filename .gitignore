@@ -1,35 +1,16 @@
 # Dependencies
-node_modules/
-.pnp
-.pnp.js
+node_modules
 
 # Build outputs
-dist/
-build/
+dist
+dist-ssr
 *.tsbuildinfo
 
-# Testing
-coverage/
-.nyc_output/
-
-# Environment
-.env
-.env.local
-.env.*.local
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
+# Vite
+.vite
 
 # Logs
-logs/
+logs
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -37,10 +18,18 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Temporary files
-tmp/
-temp/
-*.tmp
+# Environment
+.env
+.env.local
+.env.*.local
 
-# Package manager
-.pnpm-store/
+# Editor and OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
