@@ -42,15 +42,14 @@ export default function ConversationsPage() {
     { id: 'demo', label: 'Demo Message', prompt: 'This is a demo message' },
   ];
 
-  /** Chat pillar: @cortex/core Chat + ChatPanel. */
   return (
     <Layout.Vertical gapY="lg" className="w-full">
       <Layout.Vertical gapY="sm">
-        <Text variant="heading-large" color="foreground-1">
-          Hi
+        <Text variant="heading-section" color="foreground-1">
+          Conversations
         </Text>
         <Text variant="body-normal" color="foreground-3">
-          Conversations — chat (@cortex/core)
+          Chat with your AI agents using Cortex UI chat components
         </Text>
       </Layout.Vertical>
 
@@ -90,6 +89,27 @@ export default function ConversationsPage() {
             />
           </ChatPanel>
         </div>
+      </Layout.Vertical>
+
+      <Layout.Vertical gapY="md" className="p-cn-lg bg-cn-1 rounded-cn-2 border border-cn-border-1">
+        <Text variant="heading-base" color="foreground-1">
+          About This Demo
+        </Text>
+        <Text variant="body-normal" color="foreground-3">
+          This page demonstrates the Chat components from <code className="px-cn-xs py-cn-2xs bg-cn-2 rounded-cn-1 text-cn-size-3">@cortex/core</code> in a real
+          application context. The chat interface includes:
+        </Text>
+        <ul className="list-disc list-inside space-y-cn-xs ml-cn-md">
+          <li><Text variant="body-normal" color="foreground-3">Full chat UI with message history</Text></li>
+          <li><Text variant="body-normal" color="foreground-3">Collapsible sidebar panel</Text></li>
+          <li><Text variant="body-normal" color="foreground-3">Welcome screen with quick actions</Text></li>
+          <li><Text variant="body-normal" color="foreground-3">Auto-resizing input with keyboard shortcuts</Text></li>
+          <li><Text variant="body-normal" color="foreground-3">Message bubbles with role-based styling</Text></li>
+        </ul>
+        <Text variant="body-normal" color="foreground-3">
+          In a production application, you would connect this to your agent's API endpoint
+          to send and receive real messages.
+        </Text>
       </Layout.Vertical>
     </Layout.Vertical>
   );

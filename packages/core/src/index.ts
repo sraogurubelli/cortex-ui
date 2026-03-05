@@ -1,25 +1,5 @@
 /**
- * Cortex Core - AI/Agentic UI Components
- * 
- * Core UI components specifically designed for AI/agentic applications.
+ * @cortex/core – primitives only (chat, agents, badges, layout building blocks).
+ * No evals or other feature logic; platform depends on core for UI building blocks.
  */
-
-// Agent Components
-export { AgentCard } from './components/AgentCard';
-export { AgentAvatar } from './components/AgentAvatar';
-
-// Evaluation Components
-export { EvaluationBadge } from './components/EvaluationBadge';
-export { ScoreDisplay } from './components/ScoreDisplay';
-
-// Conversation Components
-export { ConversationView } from './components/ConversationView';
-export { MessageBubble } from './components/MessageBubble';
-
-// Chat Components
-export * from './components/chat';
-
-// Types
-export type { AgentCardProps } from './components/AgentCard';
-export type { EvaluationBadgeProps } from './components/EvaluationBadge';
-export type { ScoreDisplayProps } from './components/ScoreDisplay';
+export {};

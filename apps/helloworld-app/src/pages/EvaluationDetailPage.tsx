@@ -1,88 +1,98 @@
 import { useParams, Link } from 'react-router-dom';
-import { Layout, Text } from '@harnessio/ui/components';
-import { MOCK_EVALUATIONS } from '../features/evaluations/data/mockEvaluations';
+import { useEvaluation } from '../features/evaluations/hooks/useEvaluations';
+import { EvaluationBadge, ScoreDisplay } from '@cortex/core';
+import './EvaluationDetailPage.css';
 
 export default function EvaluationDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const evaluation = id ? MOCK_EVALUATIONS.find((e) => e.id === id) : null;
+  const { data: evaluation, isLoading, error } = useEvaluation(id || '');
 
-  if (!evaluation) {
+  if (isLoading) {
+    return <div className="evaluation-detail-loading">Loading evaluation...</div>;
+  }
+
+  if (error || !evaluation) {
     return (
-      <Layout.Vertical gapY="sm" className="p-cn-lg">
-        <Text variant="body-normal" color="foreground-2">
-          Evaluation not found.
-        </Text>
-        <Link to="/evaluations" className="text-cn-brand">
-          ← Back to Evaluations
-        </Link>
-      </Layout.Vertical>
+      <div className="evaluation-detail-error">
+        <p>Error loading evaluation: {String(error)}</p>
+        <Link to="/evaluations">← Back to Evaluations</Link>
+      </div>
     );
   }
 
-  const averageScore =
-    evaluation.scores.length > 0
-      ? evaluation.scores.reduce((sum, s) => sum + s.value, 0) / evaluation.scores.length
-      : 0;
+  const averageScore = evaluation.scores.length > 0
+    ? evaluation.scores.reduce((sum, s) => sum + s.value, 0) / evaluation.scores.length
+    : 0;
 
   return (
-    <Layout.Vertical gapY="lg" className="w-full">
-      <Link to="/evaluations" className="no-underline text-cn-foreground-2 hover:text-cn-brand">
-        ← Back to Evaluations
-      </Link>
-
-      <Layout.Vertical gapY="sm">
-        <Text variant="heading-section" color="foreground-1">
-          {evaluation.name}
-        </Text>
-        {evaluation.description && (
-          <Text variant="body-normal" color="foreground-2">
-            {evaluation.description}
-          </Text>
-        )}
-        <Text variant="body-normal" color="foreground-3">
-          Agent: {evaluation.agentName} · {evaluation.status}
-        </Text>
-      </Layout.Vertical>
+    <div className="evaluation-detail-page">
+      <Link to="/evaluations" className="back-link">← Back to Evaluations</Link>
+      
+      <div className="evaluation-detail-header">
+        <h1>{evaluation.name}</h1>
+        {evaluation.description && <p className="description">{evaluation.description}</p>}
+        <div className="header-meta">
+          <span>Agent: {evaluation.agentName}</span>
+          <span className={`status-badge status-${evaluation.status}`}>
+            {evaluation.status}
+          </span>
+        </div>
+      </div>
 
       {evaluation.scores.length > 0 && (
-        <Layout.Vertical gapY="md">
-          <Text variant="body-strong" color="foreground-1">
-            Scores
-          </Text>
-          <Layout.Vertical gapY="xs">
-            <Text variant="body-normal" color="foreground-2">
-              Average: {(averageScore * 100).toFixed(0)}%
-            </Text>
+        <div className="evaluation-detail-scores">
+          <h2>Scores</h2>
+          <div className="scores-summary">
+            <EvaluationBadge
+              score={averageScore}
+              maxScore={1}
+              label="Average"
+              variant="success"
+            />
+          </div>
+          <ScoreDisplay
+            scores={evaluation.scores.map(s => ({
+              name: s.name,
+              value: s.value,
+              maxValue: s.maxValue,
+            }))}
+            layout="vertical"
+          />
+          <div className="scores-detailed">
             {evaluation.scores.map((score, idx) => (
-              <div key={idx} className="flex justify-between items-center p-cn-sm rounded-cn-1 bg-cn-1">
-                <Text variant="body-normal" color="foreground-1">
-                  {score.name}
-                </Text>
-                <Text variant="body-normal" color="foreground-2">
-                  {((score.value / (score.maxValue ?? 1)) * 100).toFixed(0)}%
-                </Text>
+              <div key={idx} className="score-item">
+                <div className="score-header">
+                  <span className="score-name">{score.name}</span>
+                  <EvaluationBadge
+                    score={score.value}
+                    maxScore={score.maxValue || 1}
+                    variant={score.value >= 0.8 ? 'success' : score.value >= 0.6 ? 'warning' : 'error'}
+                  />
+                </div>
+                {score.comment && (
+                  <p className="score-comment">{score.comment}</p>
+                )}
               </div>
             ))}
-          </Layout.Vertical>
-        </Layout.Vertical>
+          </div>
+        </div>
       )}
 
-      <Layout.Vertical gapY="xs">
-        <Text variant="body-strong" color="foreground-1">
-          Details
-        </Text>
-        <Text variant="body-normal" color="foreground-3">
-          Created: {new Date(evaluation.createdAt).toLocaleString()}
-        </Text>
-        {evaluation.completedAt && (
-          <Text variant="body-normal" color="foreground-3">
-            Completed: {new Date(evaluation.completedAt).toLocaleString()}
-          </Text>
-        )}
-        <Text variant="body-normal" color="foreground-3">
-          Status: {evaluation.status}
-        </Text>
-      </Layout.Vertical>
-    </Layout.Vertical>
+      <div className="evaluation-detail-info">
+        <h2>Details</h2>
+        <dl className="info-list">
+          <dt>Created At</dt>
+          <dd>{new Date(evaluation.createdAt).toLocaleString()}</dd>
+          {evaluation.completedAt && (
+            <>
+              <dt>Completed At</dt>
+              <dd>{new Date(evaluation.completedAt).toLocaleString()}</dd>
+            </>
+          )}
+          <dt>Status</dt>
+          <dd className={`status-${evaluation.status}`}>{evaluation.status}</dd>
+        </dl>
+      </div>
+    </div>
   );
 }

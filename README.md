@@ -1,109 +1,77 @@
 # Cortex UI
 
-Cortex UI is a monorepo containing design system and core UI components for building AI/agentic applications.
+Monorepo for Cortex UI: shared packages and standalone apps. Cortex-only.
 
 ## Structure
 
 ```
 cortex-ui/
+├── apps/
+│   ├── ai-evals-app/      # Single-feature evals app (standalone)
+│   ├── cortex-core-ui/    # Host app: unified shell + platform features
+│   ├── helloworld-app/    # Sample app (agents, evaluations, chat)
+│   └── showcase/         # Component showcase
 ├── packages/
-│   ├── core/              # Core AI/agentic UI components
-│   └── design-system/    # Design system (forked from Harness Canary)
-└── apps/                 # Example apps or storybook (optional)
+│   ├── core/              # Primitives (chat, agents, badges, layout building blocks)
+│   ├── platform/          # Platform logic (host registration) + feature modules (evals, …)
+│   └── design-system/     # Design tokens / shared styles
+└── pnpm-workspace.yaml
 ```
 
-## Packages
+- **packages/core** — UI primitives only; no feature logic.
+- **packages/platform** — Platform logic (host registration contract, feature descriptors) and feature modules (evals first); any app can depend on it and run standalone.
+- **apps/ai-evals-app** — Evals-only app (standalone); routes at `/overview`, `/datasets`, `/scorers`, `/results`.
+- **apps/cortex-core-ui** — **One host, multiple features register.** Single shell; each feature registers nav + routes. Evals first; add more in `src/features.ts`.
 
-### `@cortex/core`
+## One host, features register
 
-Core UI components specifically designed for AI/agentic applications:
-- Agent cards and displays
-- Conversation views
-- Evaluation displays
-- Domain-specific UI primitives for agentic workflows
+The Cortex host (`cortex-core-ui`) is the single entry point. Features don’t live in the host code—they **register** with it:
 
-### `@cortex/design-system`
+- **Platform** exposes a feature descriptor per feature (e.g. `getEvalsFeature('/evals')`) with `sectionLabel`, `navItems`, and `routes`.
+- **Host** keeps a list of registered features in `src/features.ts`. Layout and routes are built from that list.
+- To add a feature: implement `getXxxFeature(pathPrefix)` in platform (same shape as `getEvalsFeature`), then add it to `registeredFeatures` in the host. No other host changes.
 
-Base design system forked from [Harness Canary](https://github.com/harness/canary):
-- Design tokens and themes
-- Foundational UI components (buttons, forms, layouts, etc.)
-- Maintained with upstream sync from canary
+**Running the host is sufficient:** `pnpm dev:host` gives you the full platform; all registered products (evals and any others you add) are available from that one app. Use `pnpm dev:evals` only when you need the evals UI as a standalone app.
 
-## Getting Started
+## Prerequisites
 
-### Prerequisites
+- **Node.js** 20.19+ or 22.12+ (for Vite 7)
+- **pnpm** (e.g. `npm install -g pnpm`)
+- For evals apps: **aiEvals API** running (e.g. `http://localhost:9000`)
 
-- Node.js >= 18.20.4
-- pnpm >= 9.0.0
-
-### Installation
+## Quick start
 
 ```bash
-# Install dependencies
 pnpm install
-pnpm deps
 ```
 
-### Building
+Then run **one** of these. For the platform and all its products, **`pnpm dev:host` is enough** (no need to run multiple apps):
+
+| Command | What it runs | When to use | URL |
+|---------|--------------|-------------|-----|
+| `pnpm dev:host` | Cortex host | The platform—evals and all registered products; **use this** | http://localhost:5177 |
+| `pnpm dev:evals` | AI Evals app | Evals UI only, standalone | http://localhost:5176 |
+| `pnpm dev` | Sample app | Demo (agents, evaluations, chat) | http://localhost:5175 |
+
+## Environment (evals apps)
+
+- **VITE_AI_EVALS_API_URL** (optional) — Backend base URL.  
+  Leave unset to use the Vite proxy: `/evals` → `http://localhost:9000`. Set it to point at another host if needed.
+
+## Build
 
 ```bash
-# Build all packages
-pnpm build
-
-# Build specific package
-pnpm build:core
-pnpm build:design-system
+pnpm --filter @cortex/ai-evals-app build   # ai-evals-app
+pnpm --filter @cortex/core-ui build        # cortex-core-ui host
 ```
 
-### Development
+## Design system
 
-```bash
-# Start dev servers for all packages and apps
-pnpm dev
+Use **only the Canary design system** (Apache-2.0). For components or patterns that don’t exist in Canary, **build from scratch** using Canary tokens and primitives (e.g. Radix UI). See [packages/design-system](packages/design-system/README.md).
 
-# Start specific package
-cd packages/core && pnpm dev
+## Docs
 
-# Start showcase app
-cd apps/showcase && pnpm dev
-
-# Start Hello World app
-cd apps/helloworld-app && pnpm dev
-```
-
-## Apps
-
-### Showcase App
-
-The `apps/showcase` directory contains a comprehensive showcase application demonstrating all UI components from `@cortex/core`. It includes:
-
-- **Chat Components** - Complete chat UI with panels, inputs, and message bubbles
-- **Agent Components** - Agent cards and avatars for displaying AI agents
-- **Evaluation Components** - Badges and displays for evaluation scores and metrics
-- **Multi-page Navigation** - Browse different component categories with interactive examples
-
-See [apps/showcase/README.md](./apps/showcase/README.md) for details.
-
-### Hello World App
-
-The `apps/helloworld-app` directory contains a complete sample application with a **Monitoring across the entire AI lifecycle** landing page (Continuous Evals and three phases: Pre-production, Runtime inference, Always-on production evals), similar to ai-evaluation-ui:
-
-- **Lifecycle landing page** - Central "Continuous Evals" diagram and phase cards
-- **Feature-based architecture** - Agents, evaluations, conversations
-- **TanStack Query & React Router** - Data fetching and navigation
-- **Cortex UI & Harness UI** - Full app using design system and core components
-
-See [apps/helloworld-app/README.md](./apps/helloworld-app/README.md) for details.
-
-## Contributing
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
-
-## License
-
-MIT License - see [LICENSE](./LICENSE) for details.
-
-## Acknowledgments
-
-- Design system is forked from [Harness Canary](https://github.com/harness/canary) (Apache 2.0)
-- We maintain upstream sync to receive updates and security patches
+- [packages/design-system](packages/design-system/README.md) — Design tokens and shared styles; Canary-only policy
+- [packages/platform](packages/platform/README.md) — Platform API, evals hooks/components, host registration (`HostFeature`, `getEvalsFeature`)
+- [apps/cortex-core-ui](apps/cortex-core-ui/README.md) — Cortex host: one host, features register
+- [apps/ai-evals-app](apps/ai-evals-app/README.md) — Evals standalone app (single-feature)

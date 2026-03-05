@@ -45,20 +45,13 @@ const mockAgents: Agent[] = [
 
 export const agentsApi = {
   getAll: async (): Promise<Agent[]> => {
-    try {
-      await new Promise(resolve => setTimeout(resolve, 150));
-      return mockAgents;
-    } catch {
-      return [];
-    }
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return mockAgents;
   },
 
   getById: async (id: string): Promise<Agent | null> => {
-    try {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      return mockAgents.find(agent => agent.id === id) || null;
-    } catch {
-      return null;
-    }
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return mockAgents.find(agent => agent.id === id) || null;
   },
 };

@@ -1,32 +1,13 @@
 {
   "name": "cortex-ui",
-  "version": "0.1.0",
   "private": true,
-  "description": "Cortex UI - Design system and core components for AI/agentic applications",
-  "license": "MIT",
-  "author": "SynterAIQ",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/synteraiq/cortex-ui.git"
-  },
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
-    "clean": "pnpm -r --parallel exec -- rimraf dist",
-    "clean:node_modules": "pnpm -r --parallel exec -- rimraf node_modules",
-    "deps": "pnpm -r install",
-    "deps:clean": "pnpm clean:node_modules && pnpm deps",
-    "build": "pnpm -r build",
-    "build:core": "pnpm -r --filter './packages/core' build",
-    "build:design-system": "pnpm -r --filter './packages/design-system/**' build",
-    "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
-    "dev": "pnpm -r --parallel dev"
-  },
-  "packageManager": "pnpm@9.5.0",
-  "engines": {
-    "node": ">=18.20.4",
-    "pnpm": ">=9.0.0"
+    "dev": "pnpm --filter @cortex/sample-app dev",
+    "dev:evals": "pnpm --filter @cortex/ai-evals-app dev",
+    "dev:host": "pnpm --filter @cortex/core-ui dev",
+    "build:platform": "pnpm --filter @cortex/platform exec echo 'no build step'",
+    "build:evals": "pnpm --filter @cortex/ai-evals-app build",
+    "build:host": "pnpm --filter @cortex/core-ui build"
   },
   "devDependencies": {
     "rimraf": "^5.0.0"

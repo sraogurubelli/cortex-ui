@@ -1,69 +1,135 @@
-# Hello World App
+# Cortex UI Sample App
 
-Reference app that follows the **WebChatUI framework** (Left Nav, Chat, List, Dashboards). Use it as a template for building cortex-ui apps.
-
-## WebChatUI pillars
-
-| Pillar | In this app |
-|--------|----------------|
-| **Left Nav** | Sidebar with scope selector, nav (Dashboard, Agents, Evaluations, Conversations), usage footer |
-| **Chat** | Conversations page — `@cortex/core` Chat, ChatPanel, welcome screen, quick actions |
-| **List** | Agents and Evaluations pages — card grids with mock data |
-| **Dashboards** | Dashboard (Home) — stat cards + short “WebChatUI framework” overview |
+A complete sample application demonstrating how to build a full-featured app using Cortex UI components, similar to ai-evaluation-ui.
 
 ## Overview
 
-- **Dashboard** (`/`): Hi, stat cards (Agents, Evaluations, Conversations), and a short framework overview.
-- **Agents** (`/agents`): List view (card grid); detail at `/agents/:id`.
-- **Evaluations** (`/evaluations`): List view (card grid); detail at `/evaluations/:id`.
-- **Conversations** (`/conversations`): Chat UI with collapse panel, clear messages, and simulated replies.
+This sample app showcases:
 
-No API calls; all data is from mock modules under `src/features/*/data/`.
+- **Feature-based Architecture** - Organized by features (agents, evaluations, conversations)
+- **Real Application Structure** - Complete app with routing, data fetching, and state management
+- **Cortex UI Components** - Uses components from `@cortex/core` in real scenarios
+- **TanStack Query** - For data fetching and caching
+- **React Router** - For navigation between pages
+- **Mock API** - Simulated API calls for demonstration
 
-## Stack
+## Features
 
-- **Design system**: `@harnessio/ui` (Layout, Text, Button, Sidebar, Progress, etc.)
-- **Chat**: `@cortex/core` (Chat, ChatInput, ChatPanel, MessageBubble, etc.)
-- **Theme**: Dark (`dark-std-std`) via theme context
-- **Routing**: React Router; layout in AppShell with Outlet
+### Agents
+- List view with agent cards
+- Detail view with metrics and scores
+- Status indicators
+- Uses `AgentCard` and `AgentAvatar` components
 
-## Getting started
+### Evaluations
+- List view with evaluation cards
+- Detail view with score breakdowns
+- Status tracking
+- Uses `EvaluationBadge` and `ScoreDisplay` components
 
-From cortex-ui root:
+### Conversations
+- Interactive chat interface
+- Message history
+- Welcome screen with quick actions
+- Uses `Chat`, `ChatPanel`, and related chat components
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js >= 18.20.4
+- pnpm >= 9.0.0
+
+### Installation
+
+From the cortex-ui root directory:
 
 ```bash
 pnpm install
-cd apps/helloworld-app
+```
+
+### Development
+
+```bash
+# From cortex-ui root
+pnpm dev
+
+# Or from this directory
+cd apps/sample-app
 pnpm dev
 ```
 
-Open **http://localhost:5175**.
+The app will be available at `http://localhost:5175`
 
-## Project structure
+### Building
+
+```bash
+pnpm build
+```
+
+## Project Structure
 
 ```
 src/
+├── features/              # Feature-based organization
+│   ├── agents/           # Agents feature
+│   │   ├── components/   # AgentCard, AgentsList
+│   │   ├── hooks/        # useAgents, useAgent
+│   │   ├── api/          # agentsApi (mock)
+│   │   └── types.ts      # Agent interface
+│   ├── evaluations/      # Evaluations feature
+│   └── conversations/    # Conversations feature
 ├── components/
-│   ├── layout/          # AppShell, SidebarNav
-│   ├── scope-selector/  # Scope selector (org/project)
-│   └── PageErrorBoundary.tsx
-├── contexts/            # theme-context
-├── features/
-│   ├── agents/          # types, data (mock), components (AgentsList, AgentCard)
-│   └── evaluations/    # types, data (mock), components (EvaluationsList, EvaluationCard)
-├── pages/
-│   ├── HomePage.tsx     # Dashboard (stat cards + overview)
-│   ├── AgentsPage.tsx, AgentDetailPage.tsx
-│   ├── EvaluationsPage.tsx, EvaluationDetailPage.tsx
-│   └── ConversationsPage.tsx  # Chat
-├── App.tsx
-└── main.tsx
+│   └── layout/           # Layout component
+├── pages/                 # Page components
+│   ├── AgentsPage.tsx
+│   ├── AgentDetailPage.tsx
+│   ├── EvaluationsPage.tsx
+│   ├── EvaluationDetailPage.tsx
+│   └── ConversationsPage.tsx
+├── App.tsx                # Main app with routing
+└── main.tsx               # Entry point
 ```
 
-## Skills
+## Usage Examples
 
-See cortex-ui `.claude/skills/` for: **webchatui-framework**, **design-system-basics**, **left-nav-sidebar**, **chat-ui**, **list-and-dashboards**, **ui-guidelines**.
+### Using Agent Components
+
+```tsx
+import { AgentCard } from '@cortex/core';
+
+<AgentCard
+  name="Research Agent"
+  description="Conducts deep research"
+  status="active"
+/>
+```
+
+### Using Evaluation Components
+
+```tsx
+import { EvaluationBadge, ScoreDisplay } from '@cortex/core';
+
+<EvaluationBadge
+  score={0.92}
+  maxScore={1}
+  variant="success"
+/>
+```
+
+### Using Chat Components
+
+```tsx
+import { Chat, ChatPanel } from '@cortex/core';
+
+<ChatPanel position="right">
+  <Chat
+    messages={messages}
+    onSendMessage={handleSend}
+  />
+</ChatPanel>
+```
 
 ## License
 
-MIT — see [../../LICENSE](../../LICENSE).
+MIT License - see [../../LICENSE](../../LICENSE) for details.

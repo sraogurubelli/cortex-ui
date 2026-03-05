@@ -1,91 +1,90 @@
 import { useParams, Link } from 'react-router-dom';
-import { Layout, Text } from '@harnessio/ui/components';
-import { MOCK_AGENTS } from '../features/agents/data/mockAgents';
+import { useAgent } from '../features/agents/hooks/useAgents';
+import { AgentCard as CortexAgentCard, EvaluationBadge, ScoreDisplay } from '@cortex/core';
+import './AgentDetailPage.css';
 
 export default function AgentDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const agent = id ? MOCK_AGENTS.find((a) => a.id === id) : null;
+  const { data: agent, isLoading, error } = useAgent(id || '');
 
-  if (!agent) {
+  if (isLoading) {
+    return <div className="agent-detail-loading">Loading agent...</div>;
+  }
+
+  if (error || !agent) {
     return (
-      <Layout.Vertical gapY="sm" className="p-cn-lg">
-        <Text variant="body-normal" color="foreground-2">
-          Agent not found.
-        </Text>
-        <Link to="/agents" className="text-cn-brand">
-          ← Back to Agents
-        </Link>
-      </Layout.Vertical>
+      <div className="agent-detail-error">
+        <p>Error loading agent: {String(error)}</p>
+        <Link to="/agents">← Back to Agents</Link>
+      </div>
     );
   }
 
   return (
-    <Layout.Vertical gapY="lg" className="w-full">
-      <Link to="/agents" className="no-underline text-cn-foreground-2 hover:text-cn-brand">
-        ← Back to Agents
-      </Link>
-
-      <Layout.Vertical gapY="sm">
-        <Text variant="heading-section" color="foreground-1">
-          {agent.name}
-        </Text>
-        <Text variant="body-normal" color="foreground-3">
-          {agent.status}
-        </Text>
-        {agent.description && (
-          <Text variant="body-normal" color="foreground-2">
-            {agent.description}
-          </Text>
-        )}
-      </Layout.Vertical>
+    <div className="agent-detail-page">
+      <Link to="/agents" className="back-link">← Back to Agents</Link>
+      
+      <div className="agent-detail-header">
+        <CortexAgentCard
+          name={agent.name}
+          description={agent.description}
+          status={agent.status}
+          avatar={agent.avatar}
+        />
+      </div>
 
       {agent.metrics && (
-        <Layout.Vertical gapY="md">
-          <Text variant="body-strong" color="foreground-1">
-            Metrics
-          </Text>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-cn-md">
-            <div className="p-cn-md rounded-cn-2 border border-cn-border-1 bg-cn-1">
-              <Text variant="caption-single-line-normal" color="foreground-3">
-                Total Evaluations
-              </Text>
-              <Text variant="heading-small" color="foreground-1">
-                {agent.metrics.totalEvaluations}
-              </Text>
+        <div className="agent-detail-metrics">
+          <h2>Metrics</h2>
+          <div className="metrics-grid">
+            <div className="metric-card">
+              <h3>Total Evaluations</h3>
+              <p className="metric-value">{agent.metrics.totalEvaluations}</p>
             </div>
-            <div className="p-cn-md rounded-cn-2 border border-cn-border-1 bg-cn-1">
-              <Text variant="caption-single-line-normal" color="foreground-3">
-                Average Score
-              </Text>
-              <Text variant="heading-small" color="foreground-1">
-                {(agent.metrics.averageScore * 100).toFixed(0)}%
-              </Text>
+            <div className="metric-card">
+              <h3>Average Score</h3>
+              <EvaluationBadge
+                score={agent.metrics.averageScore}
+                maxScore={1}
+                variant="success"
+              />
             </div>
-            <div className="p-cn-md rounded-cn-2 border border-cn-border-1 bg-cn-1">
-              <Text variant="caption-single-line-normal" color="foreground-3">
-                Success Rate
-              </Text>
-              <Text variant="heading-small" color="foreground-1">
-                {(agent.metrics.successRate * 100).toFixed(0)}%
-              </Text>
+            <div className="metric-card">
+              <h3>Success Rate</h3>
+              <EvaluationBadge
+                score={agent.metrics.successRate}
+                maxScore={1}
+                variant="success"
+              />
             </div>
           </div>
-        </Layout.Vertical>
+          <div className="score-display-section">
+            <ScoreDisplay
+              scores={[
+                { name: 'Average Score', value: agent.metrics.averageScore, maxValue: 1 },
+                { name: 'Success Rate', value: agent.metrics.successRate, maxValue: 1 },
+              ]}
+              layout="horizontal"
+            />
+          </div>
+        </div>
       )}
 
-      <Layout.Vertical gapY="xs">
-        <Text variant="body-strong" color="foreground-1">
-          Details
-        </Text>
-        <Text variant="body-normal" color="foreground-3">
-          Created: {new Date(agent.createdAt).toLocaleString()}
-        </Text>
-        {agent.lastActiveAt && (
-          <Text variant="body-normal" color="foreground-3">
-            Last active: {new Date(agent.lastActiveAt).toLocaleString()}
-          </Text>
-        )}
-      </Layout.Vertical>
-    </Layout.Vertical>
+      <div className="agent-detail-info">
+        <h2>Details</h2>
+        <dl className="info-list">
+          <dt>Created At</dt>
+          <dd>{new Date(agent.createdAt).toLocaleString()}</dd>
+          {agent.lastActiveAt && (
+            <>
+              <dt>Last Active</dt>
+              <dd>{new Date(agent.lastActiveAt).toLocaleString()}</dd>
+            </>
+          )}
+          <dt>Status</dt>
+          <dd className={`status-${agent.status}`}>{agent.status}</dd>
+        </dl>
+      </div>
+    </div>
   );
 }

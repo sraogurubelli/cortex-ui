@@ -1,0 +1,15 @@
+#root {
+  min-height: 100vh;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+a {
+  color: inherit;
+}
+a:hover {
+  text-decoration: underline;
+}
