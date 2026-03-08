@@ -15,9 +15,13 @@
   "scripts": {
     "lint": "eslint ."
   },
+  "dependencies": {
+    "@harnessio/ui": "^0.0.297"
+  },
   "peerDependencies": {
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.0.0 || ^7.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
