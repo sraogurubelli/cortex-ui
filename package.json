@@ -1,5 +1,6 @@
 {
   "name": "cortex-ui",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "pnpm --filter @cortex/sample-app dev",
@@ -7,9 +8,23 @@
     "dev:host": "pnpm --filter @cortex/core-ui dev",
     "build:platform": "pnpm --filter @cortex/platform exec echo 'no build step'",
     "build:evals": "pnpm --filter @cortex/ai-evals-app build",
-    "build:host": "pnpm --filter @cortex/core-ui build"
+    "build:host": "pnpm --filter @cortex/core-ui build",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,json,md,css}\"",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "@typescript-eslint/parser": "^8.56.0",
+    "@typescript-eslint/utils": "^8.56.1",
+    "eslint": "^9.39.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.3.2",
+    "prettier": "^3.8.1",
     "rimraf": "^5.0.0"
   }
 }

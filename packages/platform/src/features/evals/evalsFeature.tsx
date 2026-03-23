@@ -15,10 +15,10 @@ export function getEvalsFeature(pathPrefix: string): HostFeature {
     id: 'evals',
     sectionLabel: 'AI Evals',
     navItems: [
-      { path: `${P}/overview`, label: 'Overview' },
-      { path: `${P}/datasets`, label: 'Datasets' },
-      { path: `${P}/scorers`, label: 'Scorers' },
-      { path: `${P}/results`, label: 'Results' },
+      { path: `${P}/overview`, label: 'Overview', icon: 'layout-dashboard' },
+      { path: `${P}/datasets`, label: 'Datasets', icon: 'database' },
+      { path: `${P}/scorers`, label: 'Scorers', icon: 'calculator' },
+      { path: `${P}/results`, label: 'Results', icon: 'chart-bar' },
     ],
     routes: [
       { path: `${P}/overview`, element: <EvalsOverview /> },

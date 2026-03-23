@@ -1,14 +1,22 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import {
+  AuthProvider,
+  ProtectedRoute,
+  ThemeProvider,
+  NotificationProvider,
+  AccountProvider,
+  ProjectProvider,
+} from '@cortex/core';
 import type { HostFeature } from '@cortex/platform';
 import Layout from './components/Layout';
 import LandingPage from './pages/LandingPage';
 import SignInPage from './pages/SignInPage';
 import { remotes } from './remotes.config';
 import { loadAllRemotes } from './utils/remoteLoader';
-import { getEvalsFeature } from '@cortex/platform';
+import { getEvalsFeature, getProjectFeature, getAccountFeature } from '@cortex/platform';
 
-function App() {
+function AppContent() {
   const [features, setFeatures] = useState<HostFeature[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,17 +26,21 @@ function App() {
         // Try to load remote features first
         const remoteFeatures = await loadAllRemotes(remotes);
 
-        // Fallback: if no remotes loaded, use local features
-        const allFeatures =
-          remoteFeatures.length > 0
-            ? remoteFeatures
-            : [getEvalsFeature('/evals')]; // Fallback to local import
+        // Core platform features
+        const platformFeatures = [
+          getProjectFeature(),
+          getAccountFeature(),
+          getEvalsFeature('/evals'),
+        ];
+
+        // Combine platform features with any loaded remote features
+        const allFeatures = [...platformFeatures, ...remoteFeatures];
 
         setFeatures(allFeatures);
       } catch (error) {
         console.error('[App] Error loading features:', error);
-        // Fallback to local features on error
-        setFeatures([getEvalsFeature('/evals')]);
+        // Fallback to local platform features on error
+        setFeatures([getProjectFeature(), getAccountFeature(), getEvalsFeature('/evals')]);
       } finally {
         setLoading(false);
       }
@@ -49,25 +61,46 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/signin" element={<SignInPage />} />
-        <Route
-          path="*"
-          element={
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/signin" element={<SignInPage />} />
+
+      {/* Protected Routes */}
+      <Route
+        path="*"
+        element={
+          <ProtectedRoute>
             <Layout features={features}>
               <Routes>
                 <Route path="/" element={<LandingPage features={features} />} />
-                {features.flatMap((feature) =>
-                  feature.routes.map((r) => (
+                {features.flatMap(feature =>
+                  feature.routes.map(r => (
                     <Route key={`${feature.id}-${r.path}`} path={r.path} element={r.element} />
                   ))
                 )}
               </Routes>
             </Layout>
-          }
-        />
-      </Routes>
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <ThemeProvider>
+        <NotificationProvider>
+          <AuthProvider>
+            <AccountProvider>
+              <ProjectProvider>
+                <AppContent />
+              </ProjectProvider>
+            </AccountProvider>
+          </AuthProvider>
+        </NotificationProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

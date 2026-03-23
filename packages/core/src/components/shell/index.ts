@@ -1,5 +1,6 @@
-export { AppShell } from './AppShell';
+export { AppShell, useSidebarState } from './AppShell';
 export type { AppShellProps, NavItem, NavSection } from './AppShell';
 
-export { ProjectSwitcher } from './ProjectSwitcher';
-export type { ProjectSwitcherProps, Project } from './ProjectSwitcher';
+// Re-export from project module for backward compatibility
+export { ProjectSwitcher } from '../../project';
+export type { ProjectSwitcherProps, Project } from '../../project';

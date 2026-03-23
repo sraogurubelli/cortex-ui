@@ -47,11 +47,11 @@ pnpm install
 
 Then run **one** of these. For the platform and all its products, **`pnpm dev:host` is enough** (no need to run multiple apps):
 
-| Command | What it runs | When to use | URL |
-|---------|--------------|-------------|-----|
-| `pnpm dev:host` | Cortex host | The platform—evals and all registered products; **use this** | http://localhost:5177 |
-| `pnpm dev:evals` | AI Evals app | Evals UI only, standalone | http://localhost:5176 |
-| `pnpm dev` | Sample app | Demo (agents, evaluations, chat) | http://localhost:5175 |
+| Command          | What it runs | When to use                                                  | URL                   |
+| ---------------- | ------------ | ------------------------------------------------------------ | --------------------- |
+| `pnpm dev:host`  | Cortex host  | The platform—evals and all registered products; **use this** | http://localhost:5177 |
+| `pnpm dev:evals` | AI Evals app | Evals UI only, standalone                                    | http://localhost:5176 |
+| `pnpm dev`       | Sample app   | Demo (agents, evaluations, chat)                             | http://localhost:5175 |
 
 ## Environment (evals apps)
 
@@ -64,6 +64,87 @@ Then run **one** of these. For the platform and all its products, **`pnpm dev:ho
 pnpm --filter @cortex/ai-evals-app build   # ai-evals-app
 pnpm --filter @cortex/core-ui build        # cortex-core-ui host
 ```
+
+## Testing
+
+We use **Vitest** with React Testing Library for unit and integration tests.
+
+### Run Tests
+
+```bash
+# Run all tests (cortex-core-ui)
+pnpm --filter @cortex/core-ui test
+
+# Run with UI
+pnpm --filter @cortex/core-ui test:ui
+
+# Run with coverage
+pnpm --filter @cortex/core-ui test:coverage
+```
+
+### Coverage Targets
+
+- Statements: 50%
+- Branches: 40%
+- Functions: 50%
+- Lines: 50%
+
+See [docs/testing.md](docs/testing.md) for detailed testing guide.
+
+## Code Quality
+
+### Pre-commit Hooks
+
+Husky runs automatically on `git commit`:
+
+- **Prettier** — Auto-formats code
+- **ESLint** — Lints and auto-fixes TypeScript/React code
+
+### Manual Commands
+
+```bash
+# Format all code
+pnpm format
+
+# Check formatting (without changes)
+pnpm format:check
+
+# Lint all code
+pnpm lint
+
+# Lint with auto-fix
+pnpm lint:fix
+```
+
+### Configuration Files
+
+- `.prettierrc.json` — Prettier settings
+- `eslint.config.js` — ESLint rules (flat config)
+- `.lintstagedrc.json` — Pre-commit file patterns
+
+## Development Workflows
+
+### Using Node 20+
+
+This project requires Node.js 20+. If using nvm:
+
+```bash
+nvm use 20
+```
+
+### Separate Dev/Prod Builds
+
+Each app has separate Vite configurations:
+
+- `vite.config.dev.ts` — Fast HMR, no minification
+- `vite.config.prod.ts` — Minified, optimized, chunk retry
+
+Production builds include:
+
+- Chunk splitting (vendor-react, vendor-query, vendor-ui)
+- Automatic chunk load retry (3 attempts)
+- Content hashing for cache busting
+- Full source maps
 
 ## Design system
 

@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 export interface HostNavItem {
   path: string;
   label: string;
+  icon?: string;
 }
 
 /**

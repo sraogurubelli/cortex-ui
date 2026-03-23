@@ -1,0 +1,29 @@
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Lockfiles
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# Minified files
+*.min.js
+*.min.css
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
