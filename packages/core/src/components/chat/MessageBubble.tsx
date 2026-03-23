@@ -2,7 +2,6 @@
  * MessageBubble - Individual chat message display component
  */
 
-import { Horizontal, Vertical, Text } from '@harnessio/ui';
 import type { MessageBubbleProps } from './types';
 
 export function MessageBubble({
@@ -14,7 +13,6 @@ export function MessageBubble({
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
 
-  // Format timestamp if present
   const formattedTime = message.timestamp
     ? new Intl.DateTimeFormat('en-US', {
         hour: 'numeric',
@@ -22,74 +20,58 @@ export function MessageBubble({
       }).format(message.timestamp)
     : null;
 
-  // Get avatar or initials
   const avatarContent = message.avatar || message.userName?.charAt(0).toUpperCase() || '?';
 
   return (
-    <Horizontal
-      gap="2"
-      align="start"
-      className={`
-        ${isUser ? 'flex-row-reverse' : ''}
-        ${className}
-      `}
+    <div
+      className={`flex items-start gap-2 ${isUser ? 'flex-row-reverse' : ''} ${className}`}
     >
-      {/* Avatar */}
       {showAvatar && !isSystem && (
         <div
-          className={`
-            flex items-center justify-center
-            w-8 h-8 rounded-full
-            text-sm font-medium
-            ${isUser ? 'bg-cn-brand-primary text-white' : 'bg-cn-bg-background-3 text-cn-text-foreground-1'}
-          `}
+          className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+            isUser ? 'bg-cn-brand-primary text-white' : 'bg-cn-bg-background-3 text-cn-text-foreground-1'
+          }`}
         >
           {avatarContent}
         </div>
       )}
 
-      {/* Message content */}
-      <Vertical gap="1" className={`flex-1 ${isUser ? 'items-end' : 'items-start'}`}>
-        {/* Header: name and timestamp */}
+      <div className={`flex flex-col gap-1 flex-1 ${isUser ? 'items-end' : 'items-start'}`}>
         {(message.userName || showTimestamp) && !isSystem && (
-          <Horizontal gap="2" align="center">
+          <div className="flex items-center gap-2">
             {message.userName && (
-              <Text variant="label-sm" className="text-cn-text-foreground-2">
+              <span className="text-xs font-medium text-cn-text-foreground-2">
                 {message.userName}
-              </Text>
+              </span>
             )}
             {showTimestamp && formattedTime && (
-              <Text variant="label-xs" className="text-cn-text-foreground-3">
+              <span className="text-[10px] text-cn-text-foreground-3">
                 {formattedTime}
-              </Text>
+              </span>
             )}
-          </Horizontal>
+          </div>
         )}
 
-        {/* Message bubble */}
         <div
-          className={`
-            px-3 py-2 rounded-lg
-            max-w-[80%]
-            ${isSystem ? 'bg-cn-bg-background-2 text-cn-text-foreground-3 text-center w-full italic' : ''}
-            ${isUser ? 'bg-cn-brand-primary text-white' : !isSystem ? 'bg-cn-bg-background-2 text-cn-text-foreground-1' : ''}
-            ${message.streaming ? 'animate-pulse' : ''}
-          `}
+          className={`px-3 py-2 rounded-lg max-w-[80%] ${
+            isSystem ? 'bg-cn-bg-background-2 text-cn-text-foreground-3 text-center w-full italic' : ''
+          } ${
+            isUser ? 'bg-cn-brand-primary text-white' : !isSystem ? 'bg-cn-bg-background-2 text-cn-text-foreground-1' : ''
+          } ${message.streaming ? 'animate-pulse' : ''}`}
         >
           {typeof message.content === 'string' ? (
-            <Text
-              variant="body-md"
-              className={`
-                ${isUser ? 'text-white' : isSystem ? 'text-cn-text-foreground-3' : 'text-cn-text-foreground-1'}
-              `}
+            <span
+              className={
+                isUser ? 'text-white' : isSystem ? 'text-cn-text-foreground-3' : 'text-cn-text-foreground-1'
+              }
             >
               {message.content}
-            </Text>
+            </span>
           ) : (
             message.content
           )}
         </div>
-      </Vertical>
-    </Horizontal>
+      </div>
+    </div>
   );
 }

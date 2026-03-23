@@ -4,6 +4,7 @@ import federation from '@originjs/vite-plugin-federation';
 import path from 'path';
 
 const evalsApiUrl = process.env.VITE_AI_EVALS_API_URL ?? 'http://localhost:9000';
+const cortexApiUrl = process.env.VITE_CORTEX_API_URL ?? 'http://localhost:8000';
 
 /**
  * Base Vite configuration shared between dev and prod builds
@@ -45,6 +46,10 @@ export const baseConfig = defineConfig({
     proxy: {
       '/evals': {
         target: evalsApiUrl,
+        changeOrigin: true,
+      },
+      '/api': {
+        target: cortexApiUrl,
         changeOrigin: true,
       },
     },

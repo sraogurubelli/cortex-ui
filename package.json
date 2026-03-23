@@ -9,6 +9,7 @@
     "build:platform": "pnpm --filter @cortex/platform exec echo 'no build step'",
     "build:evals": "pnpm --filter @cortex/ai-evals-app build",
     "build:host": "pnpm --filter @cortex/core-ui build",
+    "generate:api-types": "./scripts/generate-api-types.sh",
     "format": "prettier --write \"**/*.{ts,tsx,json,md,css}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md,css}\"",
     "lint": "eslint . --ext .ts,.tsx",

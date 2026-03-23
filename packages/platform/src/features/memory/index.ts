@@ -1,0 +1,1 @@
+export { getMemoryFeature } from './memoryFeature';

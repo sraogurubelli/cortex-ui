@@ -2,13 +2,13 @@ import React, { createContext, useState, useEffect, useCallback } from 'react';
 import {
   getAuthToken,
   setAuthToken,
-  removeAuthToken,
   getStoredUser,
   setStoredUser,
-  removeStoredUser,
+  setRefreshToken,
   clearAuthStorage,
-  type StoredUser,
 } from './tokenStorage';
+import { apiRequest } from '../api/client';
+import type { TokenResponse, UserInfo } from '../api/types';
 
 export interface User {
   id: string;
@@ -23,11 +23,18 @@ export interface LoginCredentials {
   rememberMe?: boolean;
 }
 
+export interface SignupData {
+  email: string;
+  displayName: string;
+  accountName?: string;
+}
+
 export interface AuthContextValue {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
+  signup: (data: SignupData) => Promise<void>;
   logout: () => void;
   updateUser: (user: Partial<User>) => void;
 }
@@ -37,77 +44,78 @@ export const AuthContext = createContext<AuthContextValue | undefined>(undefined
 interface AuthProviderProps {
   children: React.ReactNode;
   /**
-   * Optional custom login function
-   * If not provided, uses mock authentication
+   * Optional custom login function.
+   * If not provided, calls the cortex-ai /api/v1/auth/login endpoint.
    */
   onLogin?: (credentials: LoginCredentials) => Promise<{ token: string; user: User }>;
-  /**
-   * Optional custom logout function
-   */
   onLogout?: () => Promise<void> | void;
 }
 
-/**
- * AuthProvider - Manages authentication state
- *
- * Usage:
- * ```tsx
- * <AuthProvider onLogin={handleLogin} onLogout={handleLogout}>
- *   <App />
- * </AuthProvider>
- * ```
- */
+function userInfoToUser(info: UserInfo): User {
+  return {
+    id: info.id,
+    email: info.email,
+    name: info.display_name,
+    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(info.display_name)}&background=random`,
+  };
+}
+
+function storeTokens(tokens: TokenResponse): void {
+  setAuthToken(tokens.access_token);
+  setRefreshToken(tokens.refresh_token);
+}
+
 export function AuthProvider({ children, onLogin, onLogout }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize auth state from storage
+  // Bootstrap session: if we have a token, fetch current user from the API
   useEffect(() => {
     const token = getAuthToken();
-    const storedUser = getStoredUser();
-
-    if (token && storedUser) {
-      setUser(storedUser);
+    if (!token) {
+      setIsLoading(false);
+      return;
     }
 
-    setIsLoading(false);
+    // Try stored user first for instant render, then validate with API
+    const stored = getStoredUser();
+    if (stored) setUser(stored);
+
+    apiRequest<UserInfo>('/api/v1/auth/me')
+      .then(info => {
+        const u = userInfoToUser(info);
+        setStoredUser(u);
+        setUser(u);
+      })
+      .catch(() => {
+        clearAuthStorage();
+        setUser(null);
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
-  /**
-   * Login user
-   */
   const login = useCallback(
     async (credentials: LoginCredentials) => {
       setIsLoading(true);
-
       try {
-        let token: string;
-        let userData: User;
-
         if (onLogin) {
-          // Use custom login function
           const result = await onLogin(credentials);
-          token = result.token;
-          userData = result.user;
-        } else {
-          // Mock authentication
-          // Simulate API delay
-          await new Promise(resolve => setTimeout(resolve, 1000));
-
-          // Mock successful login
-          token = `mock_token_${Date.now()}`;
-          userData = {
-            id: '1',
-            email: credentials.email,
-            name: credentials.email.split('@')[0],
-            avatar: `https://ui-avatars.com/api/?name=${credentials.email.split('@')[0]}&background=random`,
-          };
+          setAuthToken(result.token);
+          setStoredUser(result.user);
+          setUser(result.user);
+          return;
         }
 
-        // Store token and user
-        setAuthToken(token);
-        setStoredUser(userData);
-        setUser(userData);
+        const tokens = await apiRequest<TokenResponse>('/api/v1/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email: credentials.email }),
+        });
+        storeTokens(tokens);
+
+        const info = await apiRequest<UserInfo>('/api/v1/auth/me');
+        const u = userInfoToUser(info);
+        setStoredUser(u);
+        setUser(u);
       } catch (error) {
         console.error('Login failed:', error);
         throw error;
@@ -115,21 +123,46 @@ export function AuthProvider({ children, onLogin, onLogout }: AuthProviderProps)
         setIsLoading(false);
       }
     },
-    [onLogin]
+    [onLogin],
   );
 
-  /**
-   * Logout user
-   */
+  const signup = useCallback(async (data: SignupData) => {
+    setIsLoading(true);
+    try {
+      const tokens = await apiRequest<TokenResponse>('/api/v1/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: data.email,
+          display_name: data.displayName,
+          account_name: data.accountName,
+        }),
+      });
+      storeTokens(tokens);
+
+      const info = await apiRequest<UserInfo>('/api/v1/auth/me');
+      const u = userInfoToUser(info);
+      setStoredUser(u);
+      setUser(u);
+    } catch (error) {
+      console.error('Signup failed:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     setIsLoading(true);
-
     try {
       if (onLogout) {
         await onLogout();
       }
-
-      // Clear storage and state
+      // Best-effort server-side logout
+      try {
+        await apiRequest('/api/v1/auth/logout', { method: 'POST' });
+      } catch {
+        // Ignore – client clears tokens regardless
+      }
       clearAuthStorage();
       setUser(null);
     } catch (error) {
@@ -139,13 +172,9 @@ export function AuthProvider({ children, onLogin, onLogout }: AuthProviderProps)
     }
   }, [onLogout]);
 
-  /**
-   * Update user information
-   */
   const updateUser = useCallback((updates: Partial<User>) => {
     setUser(prev => {
       if (!prev) return null;
-
       const updatedUser = { ...prev, ...updates };
       setStoredUser(updatedUser);
       return updatedUser;
@@ -157,6 +186,7 @@ export function AuthProvider({ children, onLogin, onLogout }: AuthProviderProps)
     isAuthenticated: !!user,
     isLoading,
     login,
+    signup,
     logout,
     updateUser,
   };

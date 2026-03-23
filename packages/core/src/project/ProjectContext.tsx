@@ -41,7 +41,7 @@ export function ProjectProvider({
     return initialProjects[0] || null;
   });
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
 
   // Persist current project to localStorage
   useEffect(() => {

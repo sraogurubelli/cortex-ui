@@ -1,0 +1,1 @@
+export { getSkillsFeature } from './skillsFeature';

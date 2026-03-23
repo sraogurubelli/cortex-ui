@@ -1,4 +1,4 @@
-import { Text, Input, Button } from '@harnessio/ui/components';
+import { Text, Input } from '@harnessio/ui/components';
 import type { SettingItemConfig } from './types';
 
 export interface SettingItemProps extends SettingItemConfig {

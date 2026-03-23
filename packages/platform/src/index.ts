@@ -1,4 +1,13 @@
 export * from './features/evals';
 export * from './features/project';
 export * from './features/account';
+export * from './features/documents';
+export * from './features/chat';
+export * from './features/prompts';
+export * from './features/agents';
+export * from './features/models';
+export * from './features/skills';
+export * from './features/observability';
+export * from './features/memory';
+export * from './forms';
 export type { HostFeature, HostNavItem } from './host/types';

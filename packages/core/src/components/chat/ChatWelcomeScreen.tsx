@@ -2,7 +2,6 @@
  * ChatWelcomeScreen - Empty state with quick actions for chat
  */
 
-import { Vertical, Horizontal, Text, Button, Card } from '@harnessio/ui';
 import type { ChatWelcomeScreenProps } from './types';
 
 export function ChatWelcomeScreen({
@@ -12,36 +11,31 @@ export function ChatWelcomeScreen({
   className = '',
 }: ChatWelcomeScreenProps) {
   return (
-    <Vertical
-      gap="6"
-      align="center"
-      justify="center"
-      className={`flex-1 p-8 ${className}`}
-    >
+    <div className={`flex flex-col items-center justify-center flex-1 gap-6 p-8 ${className}`}>
       {/* Welcome message */}
-      <Vertical gap="2" align="center" className="max-w-md text-center">
-        <Text variant="heading-lg" className="text-cn-text-foreground-1">
+      <div className="flex flex-col items-center gap-2 max-w-md text-center">
+        <span className="text-2xl font-bold text-cn-text-foreground-1">
           {title}
-        </Text>
-        <Text variant="body-md" className="text-cn-text-foreground-2">
+        </span>
+        <span className="text-base text-cn-text-foreground-2">
           {message}
-        </Text>
-      </Vertical>
+        </span>
+      </div>
 
       {/* Quick actions */}
       {quickActions.length > 0 && (
-        <Vertical gap="3" className="w-full max-w-md">
-          <Text variant="label-sm" className="text-cn-text-foreground-2">
+        <div className="flex flex-col gap-3 w-full max-w-md">
+          <span className="text-xs font-medium text-cn-text-foreground-2">
             Quick Actions
-          </Text>
-          <Vertical gap="2">
+          </span>
+          <div className="flex flex-col gap-2">
             {quickActions.map((action) => (
-              <Card
+              <div
                 key={action.id}
-                className="cursor-pointer hover:bg-cn-bg-background-2 transition-colors"
+                className="border border-cn-border-border-1 rounded-lg cursor-pointer hover:bg-cn-bg-background-2 transition-colors"
                 onClick={action.onClick}
               >
-                <Horizontal gap="3" align="center" className="p-3">
+                <div className="flex items-center gap-3 p-3">
                   {action.icon && (
                     <div className="text-cn-brand-primary">
                       {typeof action.icon === 'string' ? (
@@ -51,15 +45,15 @@ export function ChatWelcomeScreen({
                       )}
                     </div>
                   )}
-                  <Text variant="body-md" className="text-cn-text-foreground-1">
+                  <span className="text-base text-cn-text-foreground-1">
                     {action.label}
-                  </Text>
-                </Horizontal>
-              </Card>
+                  </span>
+                </div>
+              </div>
             ))}
-          </Vertical>
-        </Vertical>
+          </div>
+        </div>
       )}
-    </Vertical>
+    </div>
   );
 }

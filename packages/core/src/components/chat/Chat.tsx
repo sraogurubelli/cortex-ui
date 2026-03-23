@@ -3,7 +3,6 @@
  */
 
 import { useEffect, useRef } from 'react';
-import { Vertical, Horizontal, Text } from '@harnessio/ui';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
 import { ChatWelcomeScreen } from './ChatWelcomeScreen';
@@ -23,7 +22,6 @@ export function Chat({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -31,22 +29,17 @@ export function Chat({
   }, [messages]);
 
   return (
-    <Vertical gap="0" className={`h-full ${className}`}>
+    <div className={`flex flex-col h-full ${className}`}>
       {/* Header */}
       {(title || headerActions) && (
-        <Horizontal
-          gap="3"
-          align="center"
-          justify="space-between"
-          className="px-4 py-3 border-b border-cn-border-border-1"
-        >
+        <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-cn-border-border-1">
           {title && (
-            <Text variant="heading-md" className="text-cn-text-foreground-1">
+            <span className="text-lg font-semibold text-cn-text-foreground-1">
               {title}
-            </Text>
+            </span>
           )}
           {headerActions && <div>{headerActions}</div>}
-        </Horizontal>
+        </div>
       )}
 
       {/* Messages area */}
@@ -60,7 +53,7 @@ export function Chat({
             quickActions={quickActions}
           />
         ) : (
-          <Vertical gap="4" className="p-4">
+          <div className="flex flex-col gap-4 p-4">
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}
@@ -70,13 +63,12 @@ export function Chat({
               />
             ))}
             <div ref={messagesEndRef} />
-          </Vertical>
+          </div>
         )}
 
-        {/* Loading indicator */}
         {loading && (
           <div className="px-4 pb-4">
-            <Horizontal gap="2" align="center">
+            <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-cn-brand-primary rounded-full animate-bounce" />
               <div
                 className="w-2 h-2 bg-cn-brand-primary rounded-full animate-bounce"
@@ -86,7 +78,7 @@ export function Chat({
                 className="w-2 h-2 bg-cn-brand-primary rounded-full animate-bounce"
                 style={{ animationDelay: '0.2s' }}
               />
-            </Horizontal>
+            </div>
           </div>
         )}
       </div>
@@ -100,6 +92,6 @@ export function Chat({
           autoFocus={true}
         />
       </div>
-    </Vertical>
+    </div>
   );
 }

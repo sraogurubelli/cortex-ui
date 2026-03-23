@@ -14,7 +14,19 @@ import LandingPage from './pages/LandingPage';
 import SignInPage from './pages/SignInPage';
 import { remotes } from './remotes.config';
 import { loadAllRemotes } from './utils/remoteLoader';
-import { getEvalsFeature, getProjectFeature, getAccountFeature } from '@cortex/platform';
+import {
+  getChatFeature,
+  getProjectFeature,
+  getAccountFeature,
+  getDocumentsFeature,
+  getPromptsFeature,
+  getAgentsFeature,
+  getModelsFeature,
+  getSkillsFeature,
+  getObservabilityFeature,
+  getMemoryFeature,
+  getEvalsFeature,
+} from '@cortex/platform';
 
 function AppContent() {
   const [features, setFeatures] = useState<HostFeature[]>([]);
@@ -28,19 +40,41 @@ function AppContent() {
 
         // Core platform features
         const platformFeatures = [
-          getProjectFeature(),
-          getAccountFeature(),
+          getChatFeature('/chat'),
+          getDocumentsFeature('/documents'),
+          getPromptsFeature('/prompts'),
+          getAgentsFeature('/agents'),
+          getModelsFeature('/models'),
+          getSkillsFeature('/skills'),
+          getObservabilityFeature('/observability'),
+          getMemoryFeature('/memory'),
           getEvalsFeature('/evals'),
+          getProjectFeature('/projects'),
+          getAccountFeature('/account'),
         ];
 
-        // Combine platform features with any loaded remote features
-        const allFeatures = [...platformFeatures, ...remoteFeatures];
+        // Combine platform features with remote features, deduplicating by id
+        const seenIds = new Set(platformFeatures.map(f => f.id));
+        const uniqueRemotes = remoteFeatures.filter(f => !seenIds.has(f.id));
+        const allFeatures = [...platformFeatures, ...uniqueRemotes];
 
         setFeatures(allFeatures);
       } catch (error) {
         console.error('[App] Error loading features:', error);
         // Fallback to local platform features on error
-        setFeatures([getProjectFeature(), getAccountFeature(), getEvalsFeature('/evals')]);
+        setFeatures([
+          getChatFeature('/chat'),
+          getDocumentsFeature('/documents'),
+          getPromptsFeature('/prompts'),
+          getAgentsFeature('/agents'),
+          getModelsFeature('/models'),
+          getSkillsFeature('/skills'),
+          getObservabilityFeature('/observability'),
+          getMemoryFeature('/memory'),
+          getEvalsFeature('/evals'),
+          getProjectFeature('/projects'),
+          getAccountFeature('/account'),
+        ]);
       } finally {
         setLoading(false);
       }

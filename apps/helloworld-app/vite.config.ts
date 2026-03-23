@@ -13,6 +13,12 @@ export default defineConfig({
   server: {
     port: 5175,
     strictPort: true,
+    proxy: {
+      '/api': {
+        target: process.env.VITE_CORTEX_API_URL ?? 'http://localhost:8000',
+        changeOrigin: true,
+      },
+    },
   },
   preview: {
     port: 5175,

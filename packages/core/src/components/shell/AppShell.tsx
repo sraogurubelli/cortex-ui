@@ -36,9 +36,9 @@ const SIDEBAR_STATE_KEY = 'cortex_sidebar_open';
 export function AppShell({
   children,
   sections = [],
-  appName,
+  appName: _appName,
   projectSwitcher,
-  headerActions,
+  headerActions: _headerActions,
   defaultSidebarOpen = true,
 }: AppShellProps) {
   const location = useLocation();

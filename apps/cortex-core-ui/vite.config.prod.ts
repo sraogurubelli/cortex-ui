@@ -12,9 +12,9 @@ export default mergeConfig(
     build: {
       modulePreload: false,
       target: 'esnext',
-      minify: 'terser', // Enable minification for production
-      cssCodeSplit: true, // Enable CSS code splitting for better caching
-      sourcemap: true, // Full source maps for debugging production issues
+      minify: 'esbuild',
+      cssCodeSplit: true,
+      sourcemap: false,
       rollupOptions: {
         output: {
           // Manual chunk splitting for optimal caching
@@ -32,11 +32,8 @@ export default mergeConfig(
           assetFileNames: 'assets/[name]-[hash].[ext]',
         },
       },
-      terserOptions: {
-        compress: {
-          drop_console: false, // Keep console logs (can be set to true for production)
-          drop_debugger: true,
-        },
+      esbuildOptions: {
+        drop: ['debugger'],
       },
     },
     // Add custom plugin for chunk load retry

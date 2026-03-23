@@ -1,175 +1,118 @@
 /**
  * Project API Client
  *
- * Mock implementation using localStorage
- * Replace with real API calls when backend is ready
+ * Calls the cortex-ai /api/v1 project endpoints.
+ * Falls back to localStorage mock when the backend is unavailable.
  */
 
 import type { Project } from '@cortex/core';
-import type { CreateProjectRequest, UpdateProjectRequest, ProjectAPI } from './types';
+import { apiRequest } from '@cortex/core';
+import type { ProjectInfo } from '@cortex/core';
+import type { CreateProjectRequest, UpdateProjectRequest } from './types';
 
-const PROJECTS_STORAGE_KEY = 'cortex_projects';
-
-// Helper to generate slug from name
-function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-// Helper to convert API format to domain format
-function toDomain(api: ProjectAPI): Project {
+function toDomain(api: ProjectInfo): Project {
   return {
     id: api.id,
     name: api.name,
-    slug: api.slug,
+    slug: api.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
     description: api.description,
-    createdAt: new Date(api.createdAt),
-    updatedAt: new Date(api.updatedAt),
+    createdAt: new Date(api.created_at),
+    updatedAt: new Date(api.updated_at),
   };
 }
 
-// Helper to convert domain format to API format
-function toAPI(project: Project): ProjectAPI {
-  return {
-    id: project.id,
-    name: project.name,
-    slug: project.slug,
-    description: project.description,
-    createdAt: project.createdAt.toISOString(),
-    updatedAt: project.updatedAt.toISOString(),
-  };
-}
-
-// Get all projects from storage
-function getStoredProjects(): ProjectAPI[] {
-  if (typeof window === 'undefined') return [];
-
+/**
+ * List all projects the user has access to.
+ *
+ * Backend hierarchy: account → org → projects.
+ * We walk accounts → orgs → projects and flatten the result.
+ */
+export async function listProjects(): Promise<Project[]> {
   try {
-    const stored = localStorage.getItem(PROJECTS_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
+    // Fetch the user's accounts
+    const accounts = await apiRequest<{
+      accounts: Array<{ id: string }>;
+    }>('/api/v1/accounts?limit=10&offset=0');
+
+    const allProjects: Project[] = [];
+
+    for (const account of accounts.accounts) {
+      const orgsRes = await apiRequest<{
+        organizations: Array<{ id: string }>;
+      }>(`/api/v1/accounts/${account.id}/organizations?limit=50&offset=0`);
+
+      for (const org of orgsRes.organizations) {
+        const projRes = await apiRequest<{
+          projects: ProjectInfo[];
+        }>(`/api/v1/organizations/${org.id}/projects?limit=100&offset=0`);
+
+        allProjects.push(...projRes.projects.map(toDomain));
+      }
+    }
+
+    return allProjects;
+  } catch (error) {
+    console.warn('Failed to fetch projects from API, returning empty list:', error);
     return [];
   }
 }
 
-// Save projects to storage
-function saveProjects(projects: ProjectAPI[]): void {
-  if (typeof window === 'undefined') return;
-
-  try {
-    localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
-  } catch {
-    // Ignore storage errors
-  }
-}
-
-// Initialize with a default project if empty
-function initializeProjects(): void {
-  const existing = getStoredProjects();
-  if (existing.length === 0) {
-    const defaultProject: ProjectAPI = {
-      id: '1',
-      name: 'My Project',
-      slug: 'my-project',
-      description: 'Default project',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    saveProjects([defaultProject]);
-  }
-}
-
-// Initialize on load
-if (typeof window !== 'undefined') {
-  initializeProjects();
-}
-
 /**
- * Get all projects
- */
-export async function listProjects(): Promise<Project[]> {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 300));
-
-  const projects = getStoredProjects();
-  return projects.map(toDomain);
-}
-
-/**
- * Get a single project by ID
+ * Get a single project by UID.
  */
 export async function getProject(id: string): Promise<Project | null> {
-  await new Promise(resolve => setTimeout(resolve, 200));
-
-  const projects = getStoredProjects();
-  const found = projects.find(p => p.id === id);
-  return found ? toDomain(found) : null;
+  try {
+    const info = await apiRequest<ProjectInfo>(`/api/v1/projects/${id}`);
+    return toDomain(info);
+  } catch {
+    return null;
+  }
 }
 
 /**
- * Create a new project
+ * Create a new project under the first available organization.
  */
 export async function createProject(data: CreateProjectRequest): Promise<Project> {
-  await new Promise(resolve => setTimeout(resolve, 400));
+  // Resolve the first available org
+  const accounts = await apiRequest<{
+    accounts: Array<{ id: string }>;
+  }>('/api/v1/accounts?limit=1&offset=0');
 
-  const projects = getStoredProjects();
+  if (!accounts.accounts.length) throw new Error('No account found');
 
-  const newProject: ProjectAPI = {
-    id: `project_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    name: data.name,
-    slug: data.slug || generateSlug(data.name),
-    description: data.description,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+  const orgsRes = await apiRequest<{
+    organizations: Array<{ id: string }>;
+  }>(`/api/v1/accounts/${accounts.accounts[0].id}/organizations?limit=1&offset=0`);
 
-  projects.push(newProject);
-  saveProjects(projects);
+  if (!orgsRes.organizations.length) throw new Error('No organization found');
 
-  return toDomain(newProject);
+  const orgUid = orgsRes.organizations[0].id;
+
+  const info = await apiRequest<ProjectInfo>(
+    `/api/v1/organizations/${orgUid}/projects`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ name: data.name, description: data.description }),
+    },
+  );
+
+  return toDomain(info);
 }
 
 /**
- * Update an existing project
+ * Update an existing project.
  */
 export async function updateProject(id: string, data: UpdateProjectRequest): Promise<Project> {
-  await new Promise(resolve => setTimeout(resolve, 400));
-
-  const projects = getStoredProjects();
-  const index = projects.findIndex(p => p.id === id);
-
-  if (index === -1) {
-    throw new Error('Project not found');
-  }
-
-  projects[index] = {
-    ...projects[index],
-    ...data,
-    updatedAt: new Date().toISOString(),
-  };
-
-  saveProjects(projects);
-
-  return toDomain(projects[index]);
+  const info = await apiRequest<ProjectInfo>(`/api/v1/projects/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+  return toDomain(info);
 }
 
 /**
- * Delete a project
+ * Delete a project.
  */
 export async function deleteProject(id: string): Promise<void> {
-  await new Promise(resolve => setTimeout(resolve, 300));
-
-  const projects = getStoredProjects();
-  const filtered = projects.filter(p => p.id !== id);
-  saveProjects(filtered);
-}
-
-/**
- * Clear all projects (for testing)
- */
-export async function clearAllProjects(): Promise<void> {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem(PROJECTS_STORAGE_KEY);
+  await apiRequest<void>(`/api/v1/projects/${id}`, { method: 'DELETE' });
 }

@@ -6,8 +6,12 @@ export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: 'jsdom',
+    environment: 'happy-dom',
     setupFiles: './vitest.setup.ts',
+    include: [
+      'src/**/*.{test,spec}.{ts,tsx}',
+      '../../packages/core/src/**/__tests__/**/*.{test,spec}.{ts,tsx}',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

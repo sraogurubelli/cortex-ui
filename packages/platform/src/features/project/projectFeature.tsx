@@ -3,16 +3,18 @@ import { ProjectListPage } from './pages/ProjectListPage';
 import { ProjectSettingsPage } from './pages/ProjectSettingsPage';
 
 /**
- * Project feature descriptor for host registration
+ * Project feature descriptor for host registration.
+ * Pass the path prefix the host uses for projects (e.g. '/projects').
  */
-export function getProjectFeature(): HostFeature {
+export function getProjectFeature(pathPrefix: string): HostFeature {
+  const P = pathPrefix.replace(/\/$/, '');
   return {
     id: 'projects',
     sectionLabel: 'Projects',
-    navItems: [{ path: '/projects', label: 'All Projects', icon: 'folder' }],
+    navItems: [{ path: `${P}`, label: 'All Projects', icon: 'folder' }],
     routes: [
-      { path: '/projects', element: <ProjectListPage /> },
-      { path: '/projects/:id/settings', element: <ProjectSettingsPage /> },
+      { path: `${P}`, element: <ProjectListPage /> },
+      { path: `${P}/:id/settings`, element: <ProjectSettingsPage /> },
     ],
   };
 }

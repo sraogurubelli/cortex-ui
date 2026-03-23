@@ -4,7 +4,7 @@
  */
 
 export { AuthProvider, AuthContext } from './AuthContext';
-export type { User, LoginCredentials, AuthContextValue } from './AuthContext';
+export type { User, LoginCredentials, SignupData, AuthContextValue } from './AuthContext';
 
 export { useAuth } from './useAuth';
 

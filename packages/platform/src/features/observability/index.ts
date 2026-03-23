@@ -1,0 +1,1 @@
+export { getObservabilityFeature } from './observabilityFeature';

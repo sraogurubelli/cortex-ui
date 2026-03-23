@@ -103,6 +103,8 @@ export interface ChatPanelProps {
   activeThreadId?: string;
   /** Callback when thread is selected */
   onSelectThread: (threadId: string) => void;
+  /** Callback when thread is deleted */
+  onDeleteThread?: (threadId: string) => void;
   /** Callback to create new thread */
   onNewThread?: () => void;
   /** Whether panel is collapsible */
@@ -112,6 +114,25 @@ export interface ChatPanelProps {
   /** Custom className */
   className?: string;
 }
+
+/**
+ * UI action event emitted by the agent to instruct the frontend
+ * to navigate, open a document, trigger search, etc.
+ */
+export interface UIActionEvent {
+  action_id: string;
+  action_type: string;
+  args: Record<string, unknown>;
+  status: 'executing' | 'waiting_for_user' | 'completed' | 'failed';
+  display_text?: string;
+}
+
+/**
+ * Callback invoked when the agent sends a ui_action SSE event.
+ * The host application should implement this to handle navigation,
+ * document opening, search, etc.
+ */
+export type UIActionHandler = (action: UIActionEvent) => void;
 
 export interface ChatWelcomeScreenProps {
   /** Welcome title */
@@ -131,6 +152,8 @@ export interface ChatHistoryProps {
   activeThreadId?: string;
   /** Callback when thread is selected */
   onSelectThread: (threadId: string) => void;
+  /** Callback when thread is deleted */
+  onDeleteThread?: (threadId: string) => void;
   /** Search query */
   searchQuery?: string;
   /** onSearch handler */

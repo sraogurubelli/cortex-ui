@@ -24,6 +24,12 @@ export * from './account';
 // Settings
 export * from './settings';
 
+// API client
+export * from './api';
+
+// Chat components
+export * from './components/chat';
+
 // Utilities
 export * from './utils';
 

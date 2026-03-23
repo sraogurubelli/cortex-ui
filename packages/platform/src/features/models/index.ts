@@ -1,0 +1,1 @@
+export { getModelsFeature } from './modelsFeature';

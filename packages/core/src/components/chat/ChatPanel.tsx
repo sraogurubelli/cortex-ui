@@ -3,7 +3,6 @@
  */
 
 import { useState } from 'react';
-import { Vertical, Horizontal, Button, Text } from '@harnessio/ui';
 import { ChatHistory } from './ChatHistory';
 import type { ChatPanelProps } from './types';
 
@@ -11,6 +10,7 @@ export function ChatPanel({
   threads,
   activeThreadId,
   onSelectThread,
+  onDeleteThread,
   onNewThread,
   collapsible = true,
   defaultCollapsed = false,
@@ -23,46 +23,39 @@ export function ChatPanel({
     return (
       <div className={`bg-cn-bg-background-1 border-r border-cn-border-border-1 ${className}`}>
         <div className="p-2">
-          <Button
+          <button
             onClick={() => setCollapsed(false)}
-            className="w-full"
-            variant="outline"
+            className="w-full px-3 py-2 border border-cn-border-border-1 rounded text-cn-text-foreground-1 hover:bg-cn-bg-background-2 transition-colors"
           >
             ≡
-          </Button>
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <Vertical
-      gap="0"
-      className={`w-64 bg-cn-bg-background-1 border-r border-cn-border-border-1 ${className}`}
+    <div
+      className={`flex flex-col w-64 bg-cn-bg-background-1 border-r border-cn-border-border-1 ${className}`}
     >
       {/* Header */}
-      <Horizontal
-        gap="2"
-        align="center"
-        justify="space-between"
-        className="p-3 border-b border-cn-border-border-1"
-      >
-        <Text variant="heading-sm" className="text-cn-text-foreground-1">
+      <div className="flex items-center justify-between gap-2 p-3 border-b border-cn-border-border-1">
+        <span className="text-sm font-semibold text-cn-text-foreground-1">
           Conversations
-        </Text>
-        <Horizontal gap="1">
+        </span>
+        <div className="flex gap-1">
           {onNewThread && (
-            <Button onClick={onNewThread} variant="ghost" size="sm">
+            <button onClick={onNewThread} className="px-2 py-1 text-sm rounded hover:bg-cn-bg-background-2 text-cn-text-foreground-2 transition-colors">
               +
-            </Button>
+            </button>
           )}
           {collapsible && (
-            <Button onClick={() => setCollapsed(true)} variant="ghost" size="sm">
+            <button onClick={() => setCollapsed(true)} className="px-2 py-1 text-sm rounded hover:bg-cn-bg-background-2 text-cn-text-foreground-2 transition-colors">
               ‹
-            </Button>
+            </button>
           )}
-        </Horizontal>
-      </Horizontal>
+        </div>
+      </div>
 
       {/* Search */}
       <div className="p-3 border-b border-cn-border-border-1">
@@ -81,9 +74,10 @@ export function ChatPanel({
           threads={threads}
           activeThreadId={activeThreadId}
           onSelectThread={onSelectThread}
+          onDeleteThread={onDeleteThread}
           searchQuery={searchQuery}
         />
       </div>
-    </Vertical>
+    </div>
   );
 }

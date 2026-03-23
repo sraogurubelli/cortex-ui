@@ -14,7 +14,6 @@ import {
   AppShell,
   ProjectSwitcher,
   type NavSection,
-  type Project,
   useAuth,
   useTheme,
   useNotifications,
@@ -41,6 +40,7 @@ export default function Layout({ children, features }: LayoutProps) {
   const { projects, currentProject, switchProject } = useProject();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
 
   // Convert HostFeature[] to NavSection[]
   const sections: NavSection[] = features.map(feature => ({
@@ -52,15 +52,33 @@ export default function Layout({ children, features }: LayoutProps) {
   // Generate breadcrumbs
   const breadcrumbs = generateBreadcrumbs(location.pathname, features as FeatureInfo[]);
 
+  // Flatten all nav items for search
+  const allNavItems = features.flatMap(f =>
+    f.navItems.map(item => ({
+      featureId: f.id,
+      featureLabel: f.sectionLabel || f.id,
+      label: item.label,
+      to: item.path,
+    })),
+  );
+
+  const searchResults = searchQuery.trim()
+    ? allNavItems.filter(
+        item =>
+          item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.featureLabel.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+    : [];
+
   const handleLogout = async () => {
     await logout();
     navigate('/signin');
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    // TODO: Implement actual search functionality
-    console.log('Search query:', query);
+  const handleSearchSelect = (to: string) => {
+    navigate(to);
+    setSearchQuery('');
+    setSearchOpen(false);
   };
 
   const handleThemeChange = (newTheme: Theme) => {
@@ -117,17 +135,42 @@ export default function Layout({ children, features }: LayoutProps) {
 
         {/* Center: Search */}
         <Topbar.Center>
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-md relative">
             <SearchInput
-              placeholder="Search..."
+              placeholder="Search features..."
               value={searchQuery}
-              onChange={value => setSearchQuery(value)}
+              onChange={value => {
+                setSearchQuery(value);
+                setSearchOpen(!!value.trim());
+              }}
               onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  handleSearch(searchQuery);
+                if (e.key === 'Escape') {
+                  setSearchQuery('');
+                  setSearchOpen(false);
+                } else if (e.key === 'Enter' && searchResults.length > 0) {
+                  handleSearchSelect(searchResults[0].to);
                 }
               }}
             />
+            {searchOpen && searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-cn-bg-background-2 border border-cn-border-border-1 rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
+                {searchResults.map((result, i) => (
+                  <button
+                    key={`${result.featureId}-${result.to}-${i}`}
+                    onClick={() => handleSearchSelect(result.to)}
+                    className="w-full text-left px-4 py-2.5 hover:bg-cn-bg-background-3 transition-colors flex items-center justify-between"
+                  >
+                    <span className="text-sm text-cn-text-foreground-1">{result.label}</span>
+                    <span className="text-xs text-cn-text-foreground-3">{result.featureLabel}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {searchOpen && searchQuery.trim() && searchResults.length === 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-cn-bg-background-2 border border-cn-border-border-1 rounded-md shadow-lg z-50 p-4 text-center">
+                <span className="text-sm text-cn-text-foreground-3">No features found</span>
+              </div>
+            )}
           </div>
         </Topbar.Center>
 
@@ -270,10 +313,10 @@ export default function Layout({ children, features }: LayoutProps) {
                     </Text>
                   </DropdownMenu.Header>
                   <DropdownMenu.Separator />
-                  <DropdownMenu.IconItem icon="user" onClick={() => navigate('/profile')}>
+                  <DropdownMenu.IconItem icon="user" onClick={() => navigate('/account/profile')}>
                     View Profile
                   </DropdownMenu.IconItem>
-                  <DropdownMenu.IconItem icon="settings" onClick={() => navigate('/settings')}>
+                  <DropdownMenu.IconItem icon="settings" onClick={() => navigate('/account/settings')}>
                     Settings
                   </DropdownMenu.IconItem>
                   <DropdownMenu.Separator />
