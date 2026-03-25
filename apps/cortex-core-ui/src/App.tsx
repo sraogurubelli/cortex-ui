@@ -12,6 +12,7 @@ import type { HostFeature } from '@cortex/platform';
 import Layout from './components/Layout';
 import LandingPage from './pages/LandingPage';
 import SignInPage from './pages/SignInPage';
+import SignUpPage from './pages/SignUpPage';
 import { remotes } from './remotes.config';
 import { loadAllRemotes } from './utils/remoteLoader';
 import {
@@ -27,6 +28,25 @@ import {
   getMemoryFeature,
   getEvalsFeature,
 } from '@cortex/platform';
+
+// Mock API interceptor for development (prevents 500 errors)
+if (import.meta.env.DEV) {
+  const originalFetch = window.fetch;
+  window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+
+    // Mock evals API endpoints
+    if (url.includes('/evals/api/')) {
+      return new Response(JSON.stringify({ items: [], total: 0 }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Pass through other requests
+    return originalFetch(input, init);
+  };
+}
 
 function AppContent() {
   const [features, setFeatures] = useState<HostFeature[]>([]);
@@ -98,6 +118,7 @@ function AppContent() {
     <Routes>
       {/* Public Routes */}
       <Route path="/signin" element={<SignInPage />} />
+      <Route path="/signup" element={<SignUpPage />} />
 
       {/* Protected Routes */}
       <Route
@@ -122,11 +143,28 @@ function AppContent() {
 }
 
 function App() {
+  // Mock login function for development (bypasses backend API)
+  const handleMockLogin = async (credentials: any) => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Return mock user data
+    return {
+      token: 'mock-jwt-token-' + Date.now(),
+      user: {
+        id: 'user-' + Math.random().toString(36).substr(2, 9),
+        email: credentials.email,
+        name: credentials.email.split('@')[0],
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(credentials.email.split('@')[0])}&background=random`,
+      },
+    };
+  };
+
   return (
     <BrowserRouter>
       <ThemeProvider>
         <NotificationProvider>
-          <AuthProvider>
+          <AuthProvider onLogin={handleMockLogin}>
             <AccountProvider>
               <ProjectProvider>
                 <AppContent />

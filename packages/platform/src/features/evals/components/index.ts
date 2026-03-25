@@ -5,6 +5,7 @@ export { ScorerList } from './ScorerList';
 export { ResultsTable } from './ResultsTable';
 export { EvalsOverview } from './Overview';
 export { DatasetDetail } from './DatasetDetail';
+export { StatCard } from './StatCard';
 
 // Enhanced components
 export { DatasetCardEnhanced } from './DatasetCardEnhanced';

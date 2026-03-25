@@ -5,4 +5,5 @@ export type * from './api/types';
 export * from './hooks';
 export * from './components';
 export * from './forms';
+export * from './pages';
 export { getEvalsFeature } from './evalsFeature';

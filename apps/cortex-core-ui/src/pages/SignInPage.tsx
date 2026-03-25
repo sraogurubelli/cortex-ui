@@ -1,6 +1,9 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Layout, Text, Button, Input, Card } from '@harnessio/ui/components';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Layout, Text, Button, Card, FormInput, FormWrapper } from '@harnessio/ui/components';
 import { useAuth } from '@cortex/core';
 
 const OAUTH_URLS: Record<string, string | undefined> = {
@@ -34,47 +37,43 @@ function handleSsoClick() {
   }
 }
 
+const signInSchema = z.object({
+  email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
+  password: z.string().min(1, 'Password is required'),
+});
+
+type SignInFormData = z.infer<typeof signInSchema>;
+
 export default function SignInPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isLoading } = useAuth();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState('');
+
+  const formMethods = useForm<SignInFormData>({
+    resolver: zodResolver(signInSchema),
+  });
+
+  const { register, handleSubmit, setError: setFormError, clearErrors } = formMethods;
 
   // Get the page they tried to visit before being redirected to login
   const from = (location.state as any)?.from?.pathname || '/';
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError('');
-
-    // Basic validation
-    if (!email) {
-      setError('Email is required');
-      return;
-    }
-
-    if (!password) {
-      setError('Password is required');
-      return;
-    }
-
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
+  const onSubmit = async (data: SignInFormData) => {
+    setServerError('');
+    clearErrors();
 
     try {
-      await login({ email, password, rememberMe });
+      await login({ email: data.email, password: data.password, rememberMe });
 
       // Redirect to where they came from or home
       navigate(from, { replace: true });
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in. Please check your credentials.');
+      const errorMessage = err.message || 'Failed to sign in. Please check your credentials.';
+      setServerError(errorMessage);
+      setFormError('password', { type: 'manual', message: errorMessage });
     }
   };
 
@@ -98,30 +97,26 @@ export default function SignInPage() {
           </Layout.Vertical>
 
           {/* Error Message */}
-          {error && (
+          {serverError && (
             <div className="p-3 rounded-md cn-bg-destructive-1 border cn-border-destructive-border">
               <Text variant="body-normal" className="cn-text-destructive-foreground">
-                {error}
+                {serverError}
               </Text>
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit}>
+          <FormWrapper {...formMethods} onSubmit={handleSubmit(onSubmit)}>
             <Layout.Vertical gapY="md">
-              <Layout.Vertical gapY="xs">
-                <Text variant="body-strong" className="cn-text-foreground-1">
-                  Email
-                </Text>
-                <Input
-                  type="email"
-                  placeholder="email@work.com"
-                  autoComplete="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  disabled={isLoading}
-                />
-              </Layout.Vertical>
+              <FormInput.Text
+                id="email"
+                label="Email"
+                placeholder="email@work.com"
+                autoComplete="email"
+                {...register('email')}
+                disabled={isLoading}
+                autoFocus
+              />
 
               <Layout.Vertical gapY="xs">
                 <Layout.Horizontal justify="between" align="center">
@@ -135,23 +130,14 @@ export default function SignInPage() {
                     Forgot password?
                   </Link>
                 </Layout.Horizontal>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    disabled={isLoading}
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sm cn-text-foreground-3 hover:cn-text-foreground-1"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? 'Hide' : 'Show'}
-                  </button>
-                </div>
+                <FormInput.Text
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  {...register('password')}
+                  disabled={isLoading}
+                />
               </Layout.Vertical>
 
               {/* Remember Me */}
@@ -178,7 +164,7 @@ export default function SignInPage() {
                 {isLoading ? 'Signing in...' : 'Sign in'}
               </Button>
             </Layout.Vertical>
-          </form>
+          </FormWrapper>
 
           {/* Divider */}
           <div className="relative my-2">

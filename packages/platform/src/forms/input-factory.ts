@@ -20,14 +20,14 @@ import { FileInput } from './inputs/FileInput';
 export const inputFactory = new InputFactory();
 
 // Register all custom input components
-inputFactory.register(new TextInput());
-inputFactory.register(new TextareaInput());
-inputFactory.register(new SelectInput());
-inputFactory.register(new BooleanInput());
-inputFactory.register(new NumberInput());
-inputFactory.register(new CheckboxInput());
-inputFactory.register(new RadioInput());
-inputFactory.register(new FileInput());
+inputFactory.registerComponent(new TextInput());
+inputFactory.registerComponent(new TextareaInput());
+inputFactory.registerComponent(new SelectInput());
+inputFactory.registerComponent(new BooleanInput());
+inputFactory.registerComponent(new NumberInput());
+inputFactory.registerComponent(new CheckboxInput());
+inputFactory.registerComponent(new RadioInput());
+inputFactory.registerComponent(new FileInput());
 
 // Export the factory as default for convenience
 export default inputFactory;

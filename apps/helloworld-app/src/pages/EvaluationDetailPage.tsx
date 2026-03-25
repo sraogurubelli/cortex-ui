@@ -1,6 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
 import { useEvaluation } from '../features/evaluations/hooks/useEvaluations';
-import { EvaluationBadge, ScoreDisplay } from '@cortex/core';
 import './EvaluationDetailPage.css';
 
 export default function EvaluationDetailPage() {
@@ -20,22 +19,23 @@ export default function EvaluationDetailPage() {
     );
   }
 
-  const averageScore = evaluation.scores.length > 0
-    ? evaluation.scores.reduce((sum, s) => sum + s.value, 0) / evaluation.scores.length
-    : 0;
+  const averageScore =
+    evaluation.scores.length > 0
+      ? evaluation.scores.reduce((sum, s) => sum + s.value, 0) / evaluation.scores.length
+      : 0;
 
   return (
     <div className="evaluation-detail-page">
-      <Link to="/evaluations" className="back-link">← Back to Evaluations</Link>
-      
+      <Link to="/evaluations" className="back-link">
+        ← Back to Evaluations
+      </Link>
+
       <div className="evaluation-detail-header">
         <h1>{evaluation.name}</h1>
         {evaluation.description && <p className="description">{evaluation.description}</p>}
         <div className="header-meta">
           <span>Agent: {evaluation.agentName}</span>
-          <span className={`status-badge status-${evaluation.status}`}>
-            {evaluation.status}
-          </span>
+          <span className={`status-badge status-${evaluation.status}`}>{evaluation.status}</span>
         </div>
       </div>
 
@@ -43,35 +43,18 @@ export default function EvaluationDetailPage() {
         <div className="evaluation-detail-scores">
           <h2>Scores</h2>
           <div className="scores-summary">
-            <EvaluationBadge
-              score={averageScore}
-              maxScore={1}
-              label="Average"
-              variant="success"
-            />
+            <div className="score-badge">Average: {(averageScore * 100).toFixed(0)}%</div>
           </div>
-          <ScoreDisplay
-            scores={evaluation.scores.map(s => ({
-              name: s.name,
-              value: s.value,
-              maxValue: s.maxValue,
-            }))}
-            layout="vertical"
-          />
           <div className="scores-detailed">
             {evaluation.scores.map((score, idx) => (
               <div key={idx} className="score-item">
                 <div className="score-header">
                   <span className="score-name">{score.name}</span>
-                  <EvaluationBadge
-                    score={score.value}
-                    maxScore={score.maxValue || 1}
-                    variant={score.value >= 0.8 ? 'success' : score.value >= 0.6 ? 'warning' : 'error'}
-                  />
+                  <span className="score-value">
+                    {score.value} / {score.maxValue || 1}
+                  </span>
                 </div>
-                {score.comment && (
-                  <p className="score-comment">{score.comment}</p>
-                )}
+                {score.comment && <p className="score-comment">{score.comment}</p>}
               </div>
             ))}
           </div>

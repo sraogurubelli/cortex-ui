@@ -1,5 +1,5 @@
 import type { HostFeature } from '../../host/types';
-import { EvalsOverview } from './components/Overview';
+import { OverviewPage } from './pages/OverviewPage';
 import { DatasetDetail } from './components/DatasetDetail';
 import { ScorerList } from './components/ScorerList';
 import { ResultsTable } from './components/ResultsTable';
@@ -21,7 +21,7 @@ export function getEvalsFeature(pathPrefix: string): HostFeature {
       { path: `${P}/results`, label: 'Results', icon: 'chart-bar' },
     ],
     routes: [
-      { path: `${P}/overview`, element: <EvalsOverview /> },
+      { path: `${P}/overview`, element: <OverviewPage /> },
       { path: `${P}/datasets`, element: <EvalsDatasetsPage pathPrefix={P} /> },
       { path: `${P}/datasets/:datasetId`, element: <DatasetDetail /> },
       { path: `${P}/scorers`, element: <ScorerList /> },

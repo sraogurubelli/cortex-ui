@@ -1,6 +1,7 @@
-import { Link, useLocation } from 'react-router-dom';
-import { Sidebar, Text, IconV2 } from '@harnessio/ui/components';
+import { useLocation } from 'react-router-dom';
+import { Sidebar, Layout, Text } from '@harnessio/ui/components';
 import { useState, useEffect } from 'react';
+import type { IconV2NamesType } from '@harnessio/ui/components';
 
 export interface NavItem {
   path: string;
@@ -58,51 +59,37 @@ export function AppShell({
   return (
     <div className="flex flex-1 min-h-0">
       <Sidebar.Provider open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <Sidebar.Root side="left" className="border-r cn-border-border-1">
+        <Sidebar.Root side="left">
           <Sidebar.Content>
-            {/* Project Switcher */}
-            {projectSwitcher && (
-              <Sidebar.Header className="pb-4 border-b cn-border-border-1">
-                {projectSwitcher}
-              </Sidebar.Header>
-            )}
+            <Layout.Flex direction="column" gap="none">
+              {/* Project Switcher */}
+              {projectSwitcher && (
+                <Sidebar.Header className="p-cn-md border-b">{projectSwitcher}</Sidebar.Header>
+              )}
 
-            {/* Navigation Sections */}
-            {sections.map(section => (
-              <Sidebar.Group key={section.id} className="px-3 py-4">
-                <Text variant="heading-small" className="mb-2 px-3 uppercase cn-text-foreground-3">
-                  {section.sectionLabel}
-                </Text>
-                <div className="space-y-1">
+              {/* Navigation Sections */}
+              {sections.map(section => (
+                <Sidebar.Group key={section.id}>
+                  <Text variant="body-normal" className="px-cn-md py-cn-xs" color="foreground-3">
+                    {section.sectionLabel}
+                  </Text>
                   {section.navItems.map(({ path, label, icon }) => {
                     const isActive =
                       location.pathname === path || location.pathname.startsWith(path + '/');
 
                     return (
-                      <Link
+                      <Sidebar.Item
                         key={path}
+                        title={label}
+                        icon={icon as IconV2NamesType}
                         to={path}
-                        className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors
-                            ${
-                              isActive
-                                ? 'cn-bg-brand-primary cn-text-white'
-                                : 'cn-text-foreground-2 hover:cn-bg-background-3'
-                            }`}
-                      >
-                        {icon && (
-                          <IconV2
-                            name={icon as any}
-                            size="sm"
-                            className={isActive ? 'text-white' : 'cn-text-foreground-3'}
-                          />
-                        )}
-                        <span>{label}</span>
-                      </Link>
+                        active={isActive}
+                      />
                     );
                   })}
-                </div>
-              </Sidebar.Group>
-            ))}
+                </Sidebar.Group>
+              ))}
+            </Layout.Flex>
           </Sidebar.Content>
         </Sidebar.Root>
       </Sidebar.Provider>
